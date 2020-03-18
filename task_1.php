@@ -9,7 +9,7 @@
 * @property-read bool $changed
 * @property-write string $name
 * @property-write string $name
-* @version 1.0
+* @version 1.1
 * @author Yury Litvinenko <yury.litwinenko@mail.ru>
 */
 final class Item {
@@ -17,6 +17,7 @@ final class Item {
 	private string $name;
 	private int $status;
 	private bool $changed = false;
+	private bool $already_init = false;
 
 
 	public function __construct(int $id) {
@@ -30,10 +31,11 @@ final class Item {
 	* Предусмотрен одноразовый вызов метода в целях экономии ресурсов
 	* @return true|false true - при первом запуска, false - при последующих
 	*/
-	private function init() {
+	private function init():bool {
 		// Обеспечивает одноразовый вызов метода
-		if (isset($this->name) && isset($this->status))
+		if ($this->already_init)
 			return false;
+		$this->already_init = true;
 
 		// $mysqli =  ...
 		$result = $mysqli->query('SELECT `name`, `status` FROM `objects` WHERE `id`=' . $this->id);
@@ -48,8 +50,10 @@ final class Item {
 	* Магически возвращает значения свойств
 	*/
 	public function __get($property) {
-		if (property_exists($this, $property))
-			return $this->$property
+		if (!property_exists($this, $property))
+			throw new Exception("Undefined property: " . get_class($this) . "::$". $property);
+
+		return $this->$property
 	}
 
 	/**
@@ -60,9 +64,9 @@ final class Item {
 
 		// Условные фильтры для записи значений
 		if ( !property_exists($this, $property) || in_array($property, $available) )
-			return NULL;
+			return;
 		if (empty(trim($value)) || gettype($property) != gettype($this->$property))
-			return NULL;
+			return;
 
 		$this->$property = $value;
 		$this->changed = true;
@@ -74,7 +78,7 @@ final class Item {
 	*/
 	public function save() {
 		if (!$this->changed)
-			return NULL;
+			return;
 
 		$name = $mysqli->real_escape_string($this->name);
 		$status = $mysqli->real_escape_string($this->status);
