@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ru">
+	<head>
+		<meta charset="utf-8">
+		<title>Тест #3</title>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+		<script type="text/javascript">
+			$(function() {
+				$(document).keydown((e) => {
+					let = needKeyCodes = {'37': 'left arrow', '38': 'up arrow', '39': 'left arrow', '40': 'down arrow'};
+
+					if (e.which in needKeyCodes)
+						alert(needKeyCodes[e.which]);
+				});
+
+				// Для демонстрации
+				for (var i = 0; i < 40; i++)
+					$('body').append($('<p>', {text: 'lorem ipsum denero task #3'}));
+			});
+		</script>
+	</head>
+	<body>
+
+	</body>
+</html>
